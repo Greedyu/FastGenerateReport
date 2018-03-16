@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="fp.bd.frame.sql.dao.TableDao">
+    <insert id="add" parameterType="fp.bd.frame.sql.po.TablePo">
+        insert ignore into `table` (table_code, `table_name`,create_sql)
+        values
+        ( #{tableCode}, #{tableName}, #{createSql})
+        on DUPLICATE KEY UPDATE `table_name`=values(`table_name`)
+    </insert>
+
+    <select id="queryTableList" parameterType="fp.bd.frame.sql.dto.TableQuery" resultType="fp.bd.frame.sql.po.TablePo">
+        select
+        t.*
+        from `table` t
+        left join field f on f.table_code = t.table_code
+        <where>
+            <if test="tableNameLike != null">
+                and t.`table_name` like CONCAT('%', #{tableNameLike}, '%')
+            </if>
+            <if test="fieldNameLike != null">
+                and f.field_name  like CONCAT('%', #{fieldNameLike}, '%')
+            </if>
+            <if test="tableCodeList != null and tableCodeList.size != 0">
+                and f.table_code in
+                <foreach collection="tableCodeList"  item="tableCodeItem" separator="," open="(" close=")">
+                    #{tableCodeItem}
+                </foreach>
+            </if>
+        </where>
+        GROUP by t.table_code
+    </select>
+
+    <select id="queryCreateSql" parameterType="java.lang.String" resultType="java.lang.String">
+        select
+        create_sql
+        from `table`
+        where table_code = #{param1}
+    </select>
+</mapper>

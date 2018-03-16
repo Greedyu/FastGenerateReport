@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="fp.bd.frame.sql.dao.FieldDao">
+
+
+    <insert id="batchInsertOrUpdate" parameterType="fp.bd.frame.sql.po.FieldPo">
+        insert ignore into field (
+        field_code, field_name, table_code
+        )
+        values
+        <foreach collection="list"  item="q" separator="," open="" close="">
+            (
+            #{q.fieldCode}, #{q.fieldName}, #{q.tableCode}
+            )
+        </foreach>
+        on DUPLICATE KEY UPDATE field_name=values(field_name)
+    </insert>
+
+    <select id="queryFieldList" resultType="fp.bd.frame.sql.po.FieldPo" parameterType="fp.bd.frame.sql.dto.FieldQuery">
+        select *
+        from field
+        <where>
+            <if test="fieldNameLike != null">
+                field_name like CONCAT('%', #{fieldNameLike}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="querySameNameField" resultType="java.lang.String">
+        select field_name
+        from field
+        where
+        table_code = #{param1}
+        and field_name in (
+            select field_name
+            from field
+            where
+            table_code = #{param2}
+        )
+    </select>
+
+</mapper>

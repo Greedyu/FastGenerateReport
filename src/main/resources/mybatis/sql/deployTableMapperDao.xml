@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="fp.bd.frame.sql.dao.DeployTableDao">
+    <insert id="batchInsert" parameterType="fp.bd.frame.sql.po.DeployTablePo">
+        insert ignore into deploy_table (
+        table_code, deploy_table_code
+        )
+        values
+        <foreach collection="list"  item="item" separator="," open="" close="">
+            (
+              #{item.tableCode}, #{item.deployTableCode}
+            )
+        </foreach>
+    </insert>
+
+    <select id="queryDeployTableCodeList" parameterType="fp.bd.frame.sql.dto.DeployTableQuery" resultType="java.lang.String">
+        select
+        dt.deploy_table_code
+        from deploy_table dt
+        <where>
+            <if test="tableCode != null">
+                and dt.table_code = #{tableCode}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteDeploy" parameterType="java.lang.String">
+        delete
+        from deploy_table
+        where table_code = #{param1}
+    </delete>
+
+</mapper>
